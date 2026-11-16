@@ -9,7 +9,7 @@ class PlanningError(Exception):
 
 
 class ReservationTable:
-    """Tracks which zones and connections are claimen in which turn"""
+    """Tracks which zones and connections are claimed in which turn"""
 
     def __init__(self, graph: Graph) -> None:
         """Create an empty table for the given graph.
@@ -132,7 +132,7 @@ class Planner:
             self._graph.end
         ) is None:
             raise PlanningError(
-                f"No route possible from {self._graph.start}"
+                f"Error: No route possible from {self._graph.start}"
                 f" to {self._graph.end}")
         for i in range(self._graph.drone_amount):
             plan = self._pathfinder.find_timed_path(
@@ -142,7 +142,7 @@ class Planner:
                 max_turn)
             if plan is None:
                 raise PlanningError(
-                    f"No route found for drone {i + 1} from"
+                    f"Error: No route found for drone {i + 1} from"
                     f" '{self._graph.start}' to '{self._graph.end}'")
             plans.append(plan)
             self._reservation_table.reserve_plan(plan)

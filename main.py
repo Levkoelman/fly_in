@@ -3,17 +3,20 @@
 from read_map import MapParser, ParseError
 from graph import Graph
 from solve_path import Planner, PlanningError
+from output import OutputFormatter, ColorPalette
+import sys
 
 
 def main() -> None:
-    parser = MapParser("02_circular_loop.txt")
+    parser = MapParser(sys.argv[1])
     try:
         map_config = parser.check_map()
         graph = Graph(map_config)
         planner = Planner(graph)
         plans = planner.plan_all()
-        for i, plan in enumerate(plans):
-            print(f"Drone {i + 1}: {plan}")
+        colors = ColorPalette()
+        output = OutputFormatter(graph, plans, colors)
+        output.write_output()
     except (ParseError, PlanningError) as e:
         print(e)
 

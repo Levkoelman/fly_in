@@ -1,13 +1,14 @@
 MAIN = main.py
+MAP ?= maps/easy/01_linear_path.txt
 
 install:
 	pip install -r requirements.txt
 
 run:
-	python3 $(MAIN)
+	python3 $(MAIN) $(MAP)
 
 debug:
-	python3 -m pdb $(MAIN)
+	python3 -m pdb $(MAIN) $(MAP)
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
