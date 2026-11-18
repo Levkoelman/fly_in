@@ -64,7 +64,7 @@ class MapConfig(BaseModel):
 
 
 class MapParser:
-    """Reads a map file line by line and turnts it into a MapConfig"""
+    """Reads a map file line by line and turns it into a MapConfig"""
     _ZONE_KEYS: ClassVar[frozenset[str]] = frozenset({
         "zone",
         "color",
@@ -114,10 +114,10 @@ class MapParser:
         """Parse the whole file and return the validated map.
 
         Returns:
-            The map with drone count, zones, connecions, start and end.
+            The map with drone count, zones, connections, start and end.
 
         Raises:
-            ParseError: On the firest invalid line, nameing its line number,
+            ParseError: On the first invalid line, nameing its line number,
                 or when nb_drones, start_hub or end_hub is missing.
         """
         lines = self.read_lines()
@@ -245,20 +245,7 @@ class MapParser:
         Raises:
             ParseError: On bad syntax, coordinates or metadata.
         """
-        base, bracket, rest = line.partition("[")
-        if "]" in base:
-            raise ParseError(f"Line {line_number}: unexpected ']'"
-                             f" before metadata")
-        if not bracket:
-            metadata = ""
-        else:
-            metadata = ""
-            if not rest.endswith("]"):
-                raise ParseError(f"Line {line_number}: expected closing ']'")
-            metadata = rest[:-1]
-            if "[" in metadata or "]" in metadata:
-                raise ParseError(f"Line {line_number}: Unexpected"
-                                 f" bracket in {metadata}")
+        base, metadata = self._extract_metadata(line_number, line)
         parts = base.split()
         if len(parts) != 3:
             raise ParseError(f"Line {line_number}: expected"
@@ -311,20 +298,7 @@ class MapParser:
         Raises:
             ParseError: On bad syntax, zone names or metadata/
         """
-        base, bracket, rest = line.partition("[")
-        if "]" in base:
-            raise ParseError(f"Line {line_number}: unexpected"
-                             f" ']' before metadata")
-        if not bracket:
-            metadata = ""
-        else:
-            metadata = ""
-            if not rest.endswith("]"):
-                raise ParseError(f"Line {line_number}: expected closing ']'")
-            metadata = rest[:-1]
-            if "[" in metadata or "]" in metadata:
-                raise ParseError(f"Line {line_number}:"
-                                 f" Unexpected bracket in {metadata}")
+        base, metadata = self._extract_metadata(line_number, line)
         parts = base.split("-")
         if len(parts) != 2:
             raise ParseError(f"Line {line_number}: expected '<name1>-"
@@ -353,6 +327,26 @@ class MapParser:
             message = e.errors()[0]["msg"]
             raise ParseError(f"Line {line_number}: Invalid connection"
                              f" {name1}-{name2}: {message}") from None
+
+    @staticmethod
+    def _extract_metadata(
+        line_number: int,
+        line: str
+    ) -> tuple[str, str]:
+        base, bracket, rest = line.partition("[")
+        if "]" in base:
+            raise ParseError(f"Line {line_number}: unexpected"
+                             f" ']' before metadata")
+        if not bracket:
+            metadata = ""
+        else:
+            if not rest.endswith("]"):
+                raise ParseError(f"Line {line_number}: expected closing ']'")
+            metadata = rest[:-1]
+            if "[" in metadata or "]" in metadata:
+                raise ParseError(f"Line {line_number}:"
+                                 f" Unexpected bracket in {metadata}")
+        return (base, metadata)
 
     @staticmethod
     def _parse_metadata(
