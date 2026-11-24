@@ -18,11 +18,11 @@ class ReservationTable:
             graph: The graph uses to look up capacities.
         """
         self._graph: Graph = graph
-        self._zone_usage: dict[tuple[str, int], int] = {}
+        self._zone_usage: dict[Position, int] = {}
         self._link_usage: dict[tuple[frozenset[str], int], int] = {}
 
     def zone_has_room(self, zone: str, turn: int) -> bool:
-        """Return wheter a zone can tacke on more drone in a turn.
+        """Return wheter a zone can take one more drone in a turn.
 
         The start and end zones always have room.
 
@@ -54,7 +54,7 @@ class ReservationTable:
 
         Args:
             zone: The name of the zone.
-            turn: The turn to claim
+            turn: The turn to claim.
         """
         reserved_drones = self._zone_usage.get((zone, turn), 0) + 1
         self._zone_usage[(zone, turn)] = reserved_drones
@@ -74,12 +74,12 @@ class ReservationTable:
     def reserve_plan(self, plan: list[Position]) -> None:
         """Claim every zone and connection a drone's plan uses.
 
-        Waiting claims the zone; a noral move claims the zone and the
-        connection on arrival; a restricted move clais the connetion for
+        Waiting claims the zone; a normal move claims the zone and the
+        connection on arrival; a restricted move claims the connection for
         both turns and the zone on arrival.
 
         Args:
-            plan: The drone's (zone, turn) positions from start tot end
+            plan: The drone's (zone, turn) positions from start tot end.
         """
         pairs = zip(plan, plan[1:])
         for pair in pairs:
@@ -112,13 +112,13 @@ class Planner:
     def plan_all(self) -> list[list[Position]]:
         """Plan every drone from start to end without capicity conflicts.
 
-        Each drone gest the earliest plan that respects reservations of
+        Each drone gets the earliest plan that respects reservations of
         the drones planned before it, and its plan is then reserved.
         max_turn is a safe upper bound: even if every drone waited for the
         previous one to arrive, all would finish within it.
 
         Returns:
-            One plan per drone, in drone order
+            One plan per drone, in drone order.
 
         Raises:
             PlanningError: If the end cannot be reached from the start.
@@ -163,7 +163,7 @@ class Pathfinder:
         """Find the fastest route on an empty map, ignoring other drones.
 
         Uses Dijkstra with (turns, -priority zones) as cost, so among
-        equally fast routes the one throuth more priority zones wins.
+        equally fast routes the one through more priority zones wins.
         Blocked zones are skipped.
 
         Args:
@@ -218,14 +218,14 @@ class Pathfinder:
         """Find the earliest-arriving plan for one drone.
 
         Runs Dijkstra over (zone, turn) positions. From each position a
-        drone can waint, move to a normal or priority neigbour (arrives next
+        drone can wait, move to a normal or priority neighbour (arrives next
         turn), or move to a restricted neighbour (one turn on the connection,
         arrives two turns later). An option is only taken if the reservation
         table has room for it. Ties in an arrival turn go to the plan trough
         more priority zones.
 
         Args:
-            start: Name fot the start zone.
+            start: Name of the start zone.
             end: Name of the end zone.
             reservation_table: Places already claimed by earlier drones.
             max_turn: Turn after which the search gives up.

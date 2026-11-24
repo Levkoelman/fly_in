@@ -8,6 +8,15 @@ import sys
 
 
 def main() -> None:
+    """Read a map, plan every drone and print the simulation.
+
+    Expects the path to a map file as th only command-line argument.
+    Parse and planning errors are printed as a message instead of
+    crashing the program.
+    """
+    if len(sys.argv) != 2:
+        print("Usage: python3 main.py <map_file>")
+        sys.exit(1)
     parser = MapParser(sys.argv[1])
     try:
         map_config = parser.check_map()

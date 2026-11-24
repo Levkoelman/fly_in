@@ -118,7 +118,7 @@ class Graph:
             1 for normal and priority zones, 2 for restricted zones.
 
         Raises:
-            ValueError: If the zone is blockec and cannot be entered.
+            ValueError: If the zone is blocked and cannot be entered.
         """
         zonetype = self._zones[name].zone_type
         if zonetype in (ZoneType.NORMAL, ZoneType.PRIORITY):

@@ -236,7 +236,7 @@ class MapParser:
         Args:
             line_number: Line number in the file.
             line: The test after 'hub:', 'start_hub:' or 'end_hub:'.
-            ignore_capacity: If True, max_drones is dropped from the
+            ignore_max: If True, max_drones is dropped from the
                 metadata, as the subject requires for start and end.
 
         Returns:
@@ -333,6 +333,24 @@ class MapParser:
         line_number: int,
         line: str
     ) -> tuple[str, str]:
+        """Split a line into the part before the metadata and the metadata.
+
+        The metadata is the text between '[' and a closing ']' at the end
+        of the line. A line without '[' has no metadata.
+
+        Args:
+            line_number: Line number in the file, For error messages.
+            line: The text after the line's prefix.
+
+        Returns:
+            The text before '[' and the text between the brackets, or an
+            empty string as metadata if there was none.
+
+        Raises:
+            ParseError: If a ']' appears before the metadata, the '[' is
+                not cloesed at the end of the line, or the metadata
+                contains another bracket.
+        """
         base, bracket, rest = line.partition("[")
         if "]" in base:
             raise ParseError(f"Line {line_number}: unexpected"

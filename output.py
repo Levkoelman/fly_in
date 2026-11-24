@@ -107,15 +107,13 @@ class OutputFormatter:
                 previous, current = pair
                 prev_zone, prev_turn = previous
                 cur_zone, cur_turn = current
+                z_color = self._graph.zone(cur_zone).color
+                colored_z = self._color_palette.colorize(cur_zone, z_color)
                 if prev_zone == cur_zone:
                     continue
                 elif (cur_turn - prev_turn) == 1:
-                    z_color = self._graph.zone(cur_zone).color
-                    colored_z = self._color_palette.colorize(cur_zone, z_color)
                     turns.setdefault(cur_turn, []).append(f"D{i}-{colored_z}")
                 elif (cur_turn - prev_turn == 2):
-                    z_color = self._graph.zone(cur_zone).color
-                    colored_z = self._color_palette.colorize(cur_zone, z_color)
                     connection = self._graph.connection(prev_zone, cur_zone)
                     color_a = self._graph.zone(connection.zone_a).color
                     color_b = self._graph.zone(connection.zone_b).color
